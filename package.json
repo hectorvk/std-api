@@ -1,0 +1,29 @@
+{
+    "name": "stardew-valley-api",
+    "version": "1.0.0",
+    "description": "API de stardew valley alojada en Vercel",
+    "main": "api/index.js",
+    "scripts": {
+        "start": "node api/index.js",
+        "dev": "nodemon api/index.js",
+        "check": "node --check api/index.js"
+    },
+    "dependencies": {
+        "@vercel/postgres": "0.8.0", 
+        "dotenv": "^16.4.5", 
+        "express": "^4.19.2" 
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.0"
+    },
+    "_comentarios": {
+        "main": "Comentamos de esta manera para que no de problemas de ejecución sustituyendo",
+        
+        "dev": "arranca la api. Al reiniciar guarda los cambios",
+        "@vercel/postgres": "Libreria oficial para conectar la API con PostgreSQL en Vercel.",
+        "dotenv": "Permite leer variables de entorno desde el archivo .env.",
+        "express": "Framework usado para crear las rutas de la API."
+
+
+    }
+}
