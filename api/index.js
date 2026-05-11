@@ -24,13 +24,81 @@ Ruta de pruebas para comprobar que la API esta operativa
 app.get('/api/cultivos', async (req, res) => {
     try {
         /*
-        Consultamos la tabla cultivos y ordenamos por id.
-        resultado.rows contiene las filas devueltas por PostgreSQL.
+        Leemos los filtros opcionales enviados en la URL.
+        Por ejemplo: /api/cultivos?temporada=Primavera&orden=precio_venta
         */
+        const { temporada, nombre, orden, direccion } = req.query;
         const pool = getPool();
-        const resultado = await pool.query('SELECT * FROM cultivos ORDER BY id');
 
-        res.json(resultado.rows);
+        const temporadasPermitidas = [
+            'Primavera',
+            'Verano',
+            'Otoño',
+            'Invierno',
+            'Varias',
+            'Invernadero'
+        ];
+
+        const columnasPermitidas = [
+            'id',
+            'nombre',
+            'precio_semilla',
+            'precio_venta',
+            'tiempo_crecimiento',
+            'tiempo_regreso',
+            'temporada'
+        ];
+
+        if (temporada && !temporadasPermitidas.includes(temporada)) {
+            return res.status(400).json({
+                mensaje: 'Temporada no valida',
+                temporadasPermitidas
+            });
+        }
+
+        if (orden && !columnasPermitidas.includes(orden)) {
+            return res.status(400).json({
+                mensaje: 'Campo de ordenacion no valido',
+                columnasPermitidas
+            });
+        }
+
+        if (direccion && !['asc', 'desc'].includes(direccion)) {
+            return res.status(400).json({
+                mensaje: 'Direccion de ordenacion no valida',
+                direccionesPermitidas: ['asc', 'desc']
+            });
+        }
+
+        let consulta = 'SELECT * FROM cultivos WHERE 1 = 1';
+        const valores = [];
+
+        if (temporada) {
+            valores.push(temporada);
+            consulta += ` AND temporada = $${valores.length}`;
+        }
+
+        if (nombre) {
+            valores.push(`%${nombre}%`);
+            consulta += ` AND nombre ILIKE $${valores.length}`;
+        }
+
+        const columnaOrden = orden || 'id';
+        const direccionOrden = direccion === 'desc' ? 'DESC' : 'ASC';
+        consulta += ` ORDER BY ${columnaOrden} ${direccionOrden}`;
+
+        const resultado = await pool.query(consulta, valores);
+
+        res.json({
+            total: resultado.rowCount,
+            filtros: {
+                temporada: temporada || null,
+                nombre: nombre || null,
+                orden: columnaOrden,
+                direccion: direccionOrden.toLowerCase()
+            },
+            datos: resultado.rows
+        });
     } catch (error) {
         /*
         Si la consulta falla, registramos el error en consola
