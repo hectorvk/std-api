@@ -634,7 +634,7 @@ CREATE TABLE `usuarios` (
 );
 
 INSERT INTO `usuarios` (`id`, `username`, `password`, `rol`, `fecha_registro`) VALUES
-(1, 'hector', '1234567890', 'admin', '2026-01-01 00:00:00');
-(2, 'gonzalo', 123456789', 'admin', '2026-01-01 00:00:00');
+(1, 'hector', '1234567890', 'admin', '2026-01-01 00:00:00'),
+(2, 'gonzalo', '123456789', 'admin', '2026-01-01 00:00:00');
 
 COMMIT;

@@ -1,5 +1,6 @@
 const express = require('express');
 require('dotenv').config();
+const getPool = require('../db');
 const app = express();
 
 
@@ -20,10 +21,27 @@ Ruta de pruebas para comprobar que la API esta operativa
 */
 
 
-app.get('/api/cultivos', (req, res) => {
-    res.json({
-        mensaje: "Cultivos de STD"
-    });
+app.get('/api/cultivos', async (req, res) => {
+    try {
+        /*
+        Consultamos la tabla cultivos y ordenamos por id.
+        resultado.rows contiene las filas devueltas por PostgreSQL.
+        */
+        const pool = getPool();
+        const resultado = await pool.query('SELECT * FROM cultivos ORDER BY id');
+
+        res.json(resultado.rows);
+    } catch (error) {
+        /*
+        Si la consulta falla, registramos el error en consola
+        y enviamos una respuesta 500 al cliente.
+        */
+        console.error('Error al consultar cultivos:', error);
+
+        res.status(500).json({
+            mensaje: 'Error al consultar los cultivos'
+        });
+    }
 });
 
 
