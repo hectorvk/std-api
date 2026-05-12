@@ -202,6 +202,130 @@ app.get('/api/personajes', async (req, res) => {
         });
     }
 });
+
+app.get('/api/materiales', async (req, res) => {
+    try {
+        const { nombre, fuente, orden, direccion } = req.query;
+        const pool = getPool();
+
+        const columnasPermitidas = [
+            'id',
+            'nombre',
+            'fuente',
+            'precio_venta'
+        ];
+
+        if (orden && !columnasPermitidas.includes(orden)) {
+            return res.status(400).json({
+                mensaje: 'Campo de ordenacion no valido',
+                columnasPermitidas
+            });
+        }
+
+        if (direccion && !['asc', 'desc'].includes(direccion)) {
+            return res.status(400).json({
+                mensaje: 'Direccion de ordenacion no valida',
+                direccionesPermitidas: ['asc', 'desc']
+            });
+        }
+
+        let consulta = 'SELECT * FROM materiales WHERE 1 = 1';
+        const valores = [];
+
+        if (nombre) {
+            valores.push(`%${nombre}%`);
+            consulta += ` AND nombre ILIKE $${valores.length}`;
+        }
+
+        if (fuente) {
+            valores.push(`%${fuente}%`);
+            consulta += ` AND fuente ILIKE $${valores.length}`;
+        }
+
+        const columnaOrden = orden || 'id';
+        const direccionOrden = direccion === 'desc' ? 'DESC' : 'ASC';
+        consulta += ` ORDER BY ${columnaOrden} ${direccionOrden}`;
+
+        const resultado = await pool.query(consulta, valores);
+
+        res.json({
+            total: resultado.rowCount,
+            filtros: {
+                nombre: nombre || null,
+                fuente: fuente || null,
+                orden: columnaOrden,
+                direccion: direccionOrden.toLowerCase()
+            },
+            datos: resultado.rows
+        });
+    } catch (error) {
+        console.error('Error al consultar materiales:', error);
+
+        res.status(500).json({
+            mensaje: 'Error al consultar los materiales'
+        });
+    }
+});
+
+app.get('/api/edificios', async (req, res) => {
+    try {
+        const { nombre, orden, direccion } = req.query;
+        const pool = getPool();
+
+        const columnasPermitidas = [
+            'id',
+            'nombre',
+            'tiempo_construccion',
+            'coste_oro',
+            'cant_madera',
+            'cant_piedra'
+        ];
+
+        if (orden && !columnasPermitidas.includes(orden)) {
+            return res.status(400).json({
+                mensaje: 'Campo de ordenacion no valido',
+                columnasPermitidas
+            });
+        }
+
+        if (direccion && !['asc', 'desc'].includes(direccion)) {
+            return res.status(400).json({
+                mensaje: 'Direccion de ordenacion no valida',
+                direccionesPermitidas: ['asc', 'desc']
+            });
+        }
+
+        let consulta = 'SELECT * FROM edificios WHERE 1 = 1';
+        const valores = [];
+
+        if (nombre) {
+            valores.push(`%${nombre}%`);
+            consulta += ` AND nombre ILIKE $${valores.length}`;
+        }
+
+        const columnaOrden = orden || 'id';
+        const direccionOrden = direccion === 'desc' ? 'DESC' : 'ASC';
+        consulta += ` ORDER BY ${columnaOrden} ${direccionOrden}`;
+
+        const resultado = await pool.query(consulta, valores);
+
+        res.json({
+            total: resultado.rowCount,
+            filtros: {
+                nombre: nombre || null,
+                orden: columnaOrden,
+                direccion: direccionOrden.toLowerCase()
+            },
+            datos: resultado.rows
+        });
+    } catch (error) {
+        console.error('Error al consultar edificios:', error);
+
+        res.status(500).json({
+            mensaje: 'Error al consultar los edificios'
+        });
+    }
+});
 /*
 Ruta de cultivos
 */
