@@ -112,7 +112,96 @@ app.get('/api/cultivos', async (req, res) => {
     }
 });
 
+app.get('/api/personajes', async (req, res) => {
+    try {
+        const { nombre, temporada, es_soltero, orden, direccion } = req.query;
+        const pool = getPool();
 
+        const temporadasPermitidas = [
+            'Primavera',
+            'Verano',
+            'Otoño',
+            'Invierno'
+        ];
+
+        const columnasPermitidas = [
+            'id',
+            'nombre',
+            'temporada_cumpleanos',
+            'dia_cumpleanos',
+            'es_soltero'
+        ];
+
+        if (temporada && !temporadasPermitidas.includes(temporada)) {
+            return res.status(400).json({
+                mensaje: 'Temporada no valida',
+                temporadasPermitidas
+            });
+        }
+
+        if (es_soltero && !['0', '1'].includes(es_soltero)) {
+            return res.status(400).json({
+                mensaje: 'El filtro es_soltero debe ser 0 o 1'
+            });
+        }
+
+        if (orden && !columnasPermitidas.includes(orden)) {
+            return res.status(400).json({
+                mensaje: 'Campo de ordenacion no valido',
+                columnasPermitidas
+            });
+        }
+
+        if (direccion && !['asc', 'desc'].includes(direccion)) {
+            return res.status(400).json({
+                mensaje: 'Direccion de ordenacion no valida',
+                direccionesPermitidas: ['asc', 'desc']
+            });
+        }
+
+        let consulta = 'SELECT * FROM personajes WHERE 1 = 1';
+        const valores = [];
+
+        if (nombre) {
+            valores.push(`%${nombre}%`);
+            consulta += ` AND nombre ILIKE $${valores.length}`;
+        }
+
+        if (temporada) {
+            valores.push(temporada);
+            consulta += ` AND temporada_cumpleanos = $${valores.length}`;
+        }
+
+        if (es_soltero) {
+            valores.push(Number(es_soltero));
+            consulta += ` AND es_soltero = $${valores.length}`;
+        }
+
+        const columnaOrden = orden || 'id';
+        const direccionOrden = direccion === 'desc' ? 'DESC' : 'ASC';
+        consulta += ` ORDER BY ${columnaOrden} ${direccionOrden}`;
+
+        const resultado = await pool.query(consulta, valores);
+
+        res.json({
+            total: resultado.rowCount,
+            filtros: {
+                nombre: nombre || null,
+                temporada: temporada || null,
+                es_soltero: es_soltero || null,
+                orden: columnaOrden,
+                direccion: direccionOrden.toLowerCase()
+            },
+            datos: resultado.rows
+        });
+    } catch (error) {
+        console.error('Error al consultar el personaje', error);
+
+        res.status(500).json({
+            mensaje: 'Error al consultar los NPCs'
+        });
+    }
+});
 /*
 Ruta de cultivos
 */
