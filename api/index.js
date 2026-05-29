@@ -1,4 +1,4 @@
- const express = require('express');
+● const express = require('express');
   require('dotenv').config();
   const getPool = require('../db');
   const jwt = require('jsonwebtoken');
@@ -39,17 +39,22 @@
           const { temporada, nombre, orden, direccion } = req.query;
           const pool = getPool();
 
-          const temporadasPermitidas = ['Primavera', 'Verano', 'Otoño', 'Invierno', 'Varias', 'Invernadero'];
-          const columnasPermitidas = ['id', 'nombre', 'precio_semilla', 'precio_venta', 'tiempo_crecimiento', 'tiempo_regreso', 'temporada'];
+          const temporadasPermitidas = ['Primavera', 'Verano', 'Otoño', 'Invierno',
+  'Varias', 'Invernadero'];
+          const columnasPermitidas = ['id', 'nombre', 'precio_semilla',
+  'precio_venta', 'tiempo_crecimiento', 'tiempo_regreso', 'temporada'];
 
           if (temporada && !temporadasPermitidas.includes(temporada)) {
-              return res.status(400).json({ mensaje: 'Temporada no valida', temporadasPermitidas });
+              return res.status(400).json({ mensaje: 'Temporada no valida',
+  temporadasPermitidas });
           }
           if (orden && !columnasPermitidas.includes(orden)) {
-              return res.status(400).json({ mensaje: 'Campo de ordenacion no valido', columnasPermitidas });
+              return res.status(400).json({ mensaje: 'Campo de ordenacion no valido',
+   columnasPermitidas });
           }
           if (direccion && !['asc', 'desc'].includes(direccion)) {
-              return res.status(400).json({ mensaje: 'Direccion de ordenacion no valida', direccionesPermitidas: ['asc', 'desc'] });
+              return res.status(400).json({ mensaje: 'Direccion de ordenacion no
+  valida', direccionesPermitidas: ['asc', 'desc'] });
           }
 
           let consulta = 'SELECT * FROM cultivos WHERE 1 = 1';
@@ -73,7 +78,8 @@
 
           res.json({
               total: resultado.rowCount,
-              filtros: { temporada: temporada || null, nombre: nombre || null, orden: columnaOrden, direccion: direccionOrden.toLowerCase() },
+              filtros: { temporada: temporada || null, nombre: nombre || null, orden:
+   columnaOrden, direccion: direccionOrden.toLowerCase() },
               datos: resultado.rows
           });
       } catch (error) {
@@ -90,19 +96,24 @@
           const pool = getPool();
 
           const temporadasPermitidas = ['Primavera', 'Verano', 'Otoño', 'Invierno'];
-          const columnasPermitidas = ['id', 'nombre', 'temporada_cumpleanos', 'dia_cumpleanos', 'es_soltero'];
+          const columnasPermitidas = ['id', 'nombre', 'temporada_cumpleanos',
+  'dia_cumpleanos', 'es_soltero'];
 
           if (temporada && !temporadasPermitidas.includes(temporada)) {
-              return res.status(400).json({ mensaje: 'Temporada no valida', temporadasPermitidas });
+              return res.status(400).json({ mensaje: 'Temporada no valida',
+  temporadasPermitidas });
           }
           if (es_soltero && !['0', '1'].includes(es_soltero)) {
-              return res.status(400).json({ mensaje: 'El filtro es_soltero debe ser 0 o 1' });
+              return res.status(400).json({ mensaje: 'El filtro es_soltero debe ser 0
+   o 1' });
           }
           if (orden && !columnasPermitidas.includes(orden)) {
-              return res.status(400).json({ mensaje: 'Campo de ordenacion no valido', columnasPermitidas });
+              return res.status(400).json({ mensaje: 'Campo de ordenacion no valido',
+   columnasPermitidas });
           }
           if (direccion && !['asc', 'desc'].includes(direccion)) {
-              return res.status(400).json({ mensaje: 'Direccion de ordenacion no valida', direccionesPermitidas: ['asc', 'desc'] });
+              return res.status(400).json({ mensaje: 'Direccion de ordenacion no
+  valida', direccionesPermitidas: ['asc', 'desc'] });
           }
 
           let consulta = 'SELECT * FROM personajes WHERE 1 = 1';
@@ -129,7 +140,8 @@
 
           res.json({
               total: resultado.rowCount,
-              filtros: { nombre: nombre || null, temporada: temporada || null, es_soltero: es_soltero || null, orden: columnaOrden, direccion:
+              filtros: { nombre: nombre || null, temporada: temporada || null,
+  es_soltero: es_soltero || null, orden: columnaOrden, direccion:
   direccionOrden.toLowerCase() },
               datos: resultado.rows
           });
@@ -149,10 +161,12 @@
           const columnasPermitidas = ['id', 'nombre', 'fuente', 'precio_venta'];
 
           if (orden && !columnasPermitidas.includes(orden)) {
-              return res.status(400).json({ mensaje: 'Campo de ordenacion no valido', columnasPermitidas });
+              return res.status(400).json({ mensaje: 'Campo de ordenacion no valido',
+   columnasPermitidas });
           }
           if (direccion && !['asc', 'desc'].includes(direccion)) {
-              return res.status(400).json({ mensaje: 'Direccion de ordenacion no valida', direccionesPermitidas: ['asc', 'desc'] });
+              return res.status(400).json({ mensaje: 'Direccion de ordenacion no
+  valida', direccionesPermitidas: ['asc', 'desc'] });
           }
 
           let consulta = 'SELECT * FROM materiales WHERE 1 = 1';
@@ -175,7 +189,8 @@
 
           res.json({
               total: resultado.rowCount,
-              filtros: { nombre: nombre || null, fuente: fuente || null, orden: columnaOrden, direccion: direccionOrden.toLowerCase() },
+              filtros: { nombre: nombre || null, fuente: fuente || null, orden:
+  columnaOrden, direccion: direccionOrden.toLowerCase() },
               datos: resultado.rows
           });
       } catch (error) {
@@ -186,18 +201,21 @@
 
 
   // edificios, mismo patron que los demas
-      app.get('/api/edificios', verificarToken, async (req, res) => {
+  app.get('/api/edificios', verificarToken, async (req, res) => {
       try {
           const { nombre, orden, direccion } = req.query;
           const pool = getPool();
 
-          const columnasPermitidas = ['id', 'nombre', 'tiempo_construccion', 'coste_oro', 'cant_madera', 'cant_piedra'];
+          const columnasPermitidas = ['id', 'nombre', 'tiempo_construccion',
+  'coste_oro', 'cant_madera', 'cant_piedra'];
 
           if (orden && !columnasPermitidas.includes(orden)) {
-              return res.status(400).json({ mensaje: 'Campo de ordenacion no valido', columnasPermitidas });
+              return res.status(400).json({ mensaje: 'Campo de ordenacion no valido',
+   columnasPermitidas });
           }
           if (direccion && !['asc', 'desc'].includes(direccion)) {
-              return res.status(400).json({ mensaje: 'Direccion de ordenacion no valida', direccionesPermitidas: ['asc', 'desc'] });
+              return res.status(400).json({ mensaje: 'Direccion de ordenacion no
+  valida', direccionesPermitidas: ['asc', 'desc'] });
           }
 
           let consulta = 'SELECT * FROM edificios WHERE 1 = 1';
@@ -216,7 +234,8 @@
 
           res.json({
               total: resultado.rowCount,
-              filtros: { nombre: nombre || null, orden: columnaOrden, direccion: direccionOrden.toLowerCase() },
+              filtros: { nombre: nombre || null, orden: columnaOrden, direccion:
+  direccionOrden.toLowerCase() },
               datos: resultado.rows
           });
       } catch (error) {
@@ -248,10 +267,14 @@
           }
 
           const usuario = resultado.rows[0];
-          const token = 'token_' + usuario.id + '_' + Date.now();
-
           // sacamos el nombre de la parte antes de la @
-          const nombre = usuario.username.includes('@') ? usuario.username.split('@')[0] : usuario.username;
+          const nombre = usuario.username.includes('@') ?
+  usuario.username.split('@')[0] : usuario.username;
+          const token = jwt.sign(
+              { id: usuario.id, username: usuario.username, nombre: nombre },
+              JWT_SECRET,
+              { expiresIn: '7d' }
+          );
 
           // mismo formato que espera AuthDto.kt
           res.json({
@@ -272,27 +295,36 @@
           const pool = getPool();
 
           if (!email || !password) {
-              return res.status(400).json({ mensaje: 'Faltan campos obligatorios (email y password)' });
+              return res.status(400).json({ mensaje: 'Faltan campos obligatorios
+  (email y password)' });
           }
 
           /* miramos si ya hay alguien con ese email */
-          const existe = await pool.query('SELECT id FROM usuarios WHERE username = $1', [email]);
+          const existe = await pool.query('SELECT id FROM usuarios WHERE username =
+  $1', [email]);
 
           if (existe.rowCount > 0) {
               return res.status(409).json({ mensaje: 'El usuario ya existe' });
           }
 
-          const resultado = await pool.query('INSERT INTO usuarios (username, password) VALUES ($1, $2) RETURNING id, username, fecha_registro',
-   [email, password]);
+          const resultado = await pool.query('INSERT INTO usuarios (username,
+  password) VALUES ($1, $2) RETURNING id, username, fecha_registro', [email,
+  password]);
           const nuevoUsuario = resultado.rows[0];
-
-          const token = 'token_' + nuevoUsuario.id + '_' + Date.now();
-          const nombreUsuario = nombre || (email.includes('@') ? email.split('@')[0] : email);
+          const nombreUsuario = nombre || (email.includes('@') ? email.split('@')[0]
+  : email);
+          const token = jwt.sign(
+              { id: nuevoUsuario.id, username: nuevoUsuario.username, nombre:
+  nombreUsuario },
+              JWT_SECRET,
+              { expiresIn: '7d' }
+          );
 
           // 201 = creado correctamente
           res.status(201).json({
               token: token,
-              usuario: { id: nuevoUsuario.id, nombre: nombreUsuario, email: nuevoUsuario.username }
+              usuario: { id: nuevoUsuario.id, nombre: nombreUsuario, email:
+  nuevoUsuario.username }
           });
       } catch (error) {
           console.error('Error en registro:', error);
@@ -311,7 +343,8 @@
           const pool = getPool();
 
           if (!cultivos || !Array.isArray(cultivos) || cultivos.length === 0) {
-              return res.status(400).json({ mensaje: 'Debes enviar un array de cultivos con id y cantidad' });
+              return res.status(400).json({ mensaje: 'Debes enviar un array de
+  cultivos con id y cantidad' });
           }
 
           const resultados = [];
@@ -323,7 +356,8 @@
               const { id, cantidad } = item;
               if (!id || !cantidad || cantidad <= 0) continue;
 
-              const resultado = await pool.query('SELECT * FROM cultivos WHERE id = $1', [id]);
+              const resultado = await pool.query('SELECT * FROM cultivos WHERE id =
+  $1', [id]);
               if (resultado.rowCount === 0) continue;
 
               const cultivo = resultado.rows[0];
@@ -353,7 +387,8 @@
 
           res.json({
               cultivos: resultados,
-              resumen: { coste_total: costeTotal, ingreso_total: ingresoTotal, beneficio_total: beneficioTotal }
+              resumen: { coste_total: costeTotal, ingreso_total: ingresoTotal,
+  beneficio_total: beneficioTotal }
           });
       } catch (error) {
           console.error('Error al calcular cultivos:', error);
@@ -366,13 +401,14 @@
     Calculadora de edificios
     recibe array de { id, cantidad }, busca materiales en BD y suma todo
   */
-app.post('/api/calcular/edificios', verificarToken, async (req, res) => {
+  app.post('/api/calcular/edificios', verificarToken, async (req, res) => {
       try {
           const { edificios } = req.body;
           const pool = getPool();
 
           if (!edificios || !Array.isArray(edificios) || edificios.length === 0) {
-              return res.status(400).json({ mensaje: 'Debes enviar un array de edificios con id y cantidad' });
+              return res.status(400).json({ mensaje: 'Debes enviar un array de
+  edificios con id y cantidad' });
           }
 
           const resultados = [];
@@ -392,7 +428,8 @@ app.post('/api/calcular/edificios', verificarToken, async (req, res) => {
               const { id, cantidad } = item;
               if (!id || !cantidad || cantidad <= 0) continue;
 
-              const resultado = await pool.query('SELECT * FROM edificios WHERE id = $1', [id]);
+              const resultado = await pool.query('SELECT * FROM edificios WHERE id =
+  $1', [id]);
               if (resultado.rowCount === 0) continue;
 
               const edificio = resultado.rows[0];
@@ -423,7 +460,8 @@ app.post('/api/calcular/edificios', verificarToken, async (req, res) => {
               edificios: resultados,
               totales: {
                   oro: totalOro, madera: totalMadera, piedra: totalPiedra,
-                  madera_noble: totalMaderaNoble, fibra: totalFibra, arcilla: totalArcilla,
+                  madera_noble: totalMaderaNoble, fibra: totalFibra, arcilla:
+  totalArcilla,
                   lingote_cobre: totalCobre, lingote_hierro: totalHierro,
                   lingote_iridio: totalIridio, cuarzo_refinado: totalCuarzo
               }
