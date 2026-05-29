@@ -1,21 +1,40 @@
  const express = require('express');
   require('dotenv').config();
   const getPool = require('../db');
+  const jwt = require('jsonwebtoken');
   const app = express();
 
   app.use(express.json());
-
+  //Clave para firmar el JWT
+  const JWT_SECRET = process.env.JWT_SECRET || 'clave_desarrollo_local';
   // Medidor de salud de la API
   app.get('/api', (req, res) => {
       res.json({ mensaje: 'La api funciona correctamente' });
   });
 
+  //Este bloque se encarga de verificar el JWT
+  function verificarToken(req, res, next) {
+      const cabecera = req.headers['authorization'];
 
+      if (!cabecera || !cabecera.startsWith('Bearer ')) {
+          return res.status(401).json({ mensaje: 'Token no proporcionado' });
+      }
+
+      const token = cabecera.split(' ')[1];
+
+      try {
+          const datos = jwt.verify(token, JWT_SECRET);
+          req.usuario = datos;
+          next();
+      } catch (error) {
+          return res.status(401).json({ mensaje: 'Token invalido o expirado' });
+      }
+  }
   /*
     GET /api/cultivos
     Soporta filtros por temporada y nombre, y ordenacion por cualquier columna valida
   */
-  app.get('/api/cultivos', async (req, res) => {
+  app.get('/api/cultivos', verificarToken, async (req, res) => {
       try {
           const { temporada, nombre, orden, direccion } = req.query;
           const pool = getPool();
@@ -65,7 +84,7 @@
 
 
   // personajes con filtros de nombre, temporada cumple y si es soltero
-  app.get('/api/personajes', async (req, res) => {
+  app.get('/api/personajes', verificarToken, async (req, res) => {
       try {
           const { nombre, temporada, es_soltero, orden, direccion } = req.query;
           const pool = getPool();
@@ -122,7 +141,7 @@
 
 
   /* materiales - filtros por nombre y fuente */
-  app.get('/api/materiales', async (req, res) => {
+  app.get('/api/materiales', verificarToken, async (req, res) => {
       try {
           const { nombre, fuente, orden, direccion } = req.query;
           const pool = getPool();
@@ -167,7 +186,7 @@
 
 
   // edificios, mismo patron que los demas
-  app.get('/api/edificios', async (req, res) => {
+      app.get('/api/edificios', verificarToken, async (req, res) => {
       try {
           const { nombre, orden, direccion } = req.query;
           const pool = getPool();
@@ -286,7 +305,7 @@
     Calculadora de cultivos
     recibe array de { id, cantidad } y calcula coste/ingreso/beneficio
   */
-  app.post('/api/calcular/cultivos', async (req, res) => {
+  app.post('/api/calcular/cultivos', verificarToken, async (req, res) => {
       try {
           const { cultivos } = req.body;
           const pool = getPool();
@@ -347,7 +366,7 @@
     Calculadora de edificios
     recibe array de { id, cantidad }, busca materiales en BD y suma todo
   */
-  app.post('/api/calcular/edificios', async (req, res) => {
+app.post('/api/calcular/edificios', verificarToken, async (req, res) => {
       try {
           const { edificios } = req.body;
           const pool = getPool();
