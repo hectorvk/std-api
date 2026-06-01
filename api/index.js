@@ -1,8 +1,8 @@
-const express = require('express');
+  const express = require('express');
   require('dotenv').config();
   const getPool = require('../db');
   const jwt = require('jsonwebtoken');
-  const bcrypt = require('bcryptjs'); //Añadimos Bcrypt.js (lo usamos en js porque el nativo Vercel no lo soporta)
+  const bcrypt = require('bcryptjs');
   const app = express();
 
   app.use(express.json());
@@ -237,7 +237,7 @@ const express = require('express');
 
   /*
     Login - busca en usuarios por username (que guarda el email)
-    y compara password. Devuelve token + datos del usuario
+    y compara password con bcrypt. Devuelve token + datos del usuario
   */
   app.post('/auth/login', async (req, res) => {
       try {
@@ -249,21 +249,21 @@ const express = require('express');
           }
 
           // buscamos por username que en nuestra BD es el email
-  const sql = 'SELECT * FROM usuarios WHERE username = $1';
-  const resultado = await pool.query(sql, [email]);
-//Antes la query SQL comparaba texto plano, pero ahora bcrypt compara contraseña del usuario y el hash generado
-  if (resultado.rowCount === 0) {
-      return res.status(401).json({ mensaje: 'No se encontro al usuario' });
-  }
+          const sql = 'SELECT * FROM usuarios WHERE username = $1';
+          const resultado = await pool.query(sql, [email]);
 
-  const usuario = resultado.rows[0];
-
-  const passwordValido = bcrypt.compareSync(password, usuario.password);
-  if (!passwordValido) {
-      return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
-  }
+          if (resultado.rowCount === 0) {
+              return res.status(401).json({ mensaje: 'No se encontro al usuario' });
+          }
 
           const usuario = resultado.rows[0];
+
+          // comparamos la password con el hash almacenado en BD
+          const passwordValido = bcrypt.compareSync(password, usuario.password);
+          if (!passwordValido) {
+              return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
+          }
+
           // sacamos el nombre de la parte antes de la @
           const nombre = usuario.username.includes('@') ?
   usuario.username.split('@')[0] : usuario.username;
@@ -301,9 +301,10 @@ const express = require('express');
           if (existe.rowCount > 0) {
               return res.status(409).json({ mensaje: 'El usuario ya existe' });
           }
+
           const hash = bcrypt.hashSync(password, 10);
           const resultado = await pool.query('INSERT INTO usuarios (username, password) VALUES ($1, $2) RETURNING id, username, fecha_registro', [email,
-  hash]);//Antes de guardar en la base de datos la contraseña la convierte en un hash irreversible.
+  hash]);
           const nuevoUsuario = resultado.rows[0];
           const nombreUsuario = nombre || (email.includes('@') ? email.split('@')[0]
   : email);
@@ -450,7 +451,7 @@ const express = require('express');
               edificios: resultados,
               totales: {
                   oro: totalOro, madera: totalMadera, piedra: totalPiedra,
-                  madera_noble: totalMaderaNoble, fibra: totalFibra, arcilla: 
+                  madera_noble: totalMaderaNoble, fibra: totalFibra, arcilla:
                   totalArcilla,
                   lingote_cobre: totalCobre, lingote_hierro: totalHierro,
                   lingote_iridio: totalIridio, cuarzo_refinado: totalCuarzo
