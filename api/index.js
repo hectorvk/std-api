@@ -2,6 +2,7 @@ const express = require('express');
   require('dotenv').config();
   const getPool = require('../db');
   const jwt = require('jsonwebtoken');
+  const bcrypt = require('bcryptjs'); //Añadimos Bcrypt.js (lo usamos en js porque el nativo Vercel no lo soporta)
   const app = express();
 
   app.use(express.json());
@@ -248,12 +249,19 @@ const express = require('express');
           }
 
           // buscamos por username que en nuestra BD es el email
-          const sql = 'SELECT * FROM usuarios WHERE username = $1 AND password = $2';
-          const resultado = await pool.query(sql, [email, password]);
+  const sql = 'SELECT * FROM usuarios WHERE username = $1';
+  const resultado = await pool.query(sql, [email]);
+//Antes la query SQL comparaba texto plano, pero ahora bcrypt compara contraseña del usuario y el hash generado
+  if (resultado.rowCount === 0) {
+      return res.status(401).json({ mensaje: 'No se encontro al usuario' });
+  }
 
-          if (resultado.rowCount === 0) {
-              return res.status(401).json({ mensaje: 'No se encontro al usuario' });
-          }
+  const usuario = resultado.rows[0];
+
+  const passwordValido = bcrypt.compareSync(password, usuario.password);
+  if (!passwordValido) {
+      return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
+  }
 
           const usuario = resultado.rows[0];
           // sacamos el nombre de la parte antes de la @
@@ -293,9 +301,9 @@ const express = require('express');
           if (existe.rowCount > 0) {
               return res.status(409).json({ mensaje: 'El usuario ya existe' });
           }
-
+          const hash = bcrypt.hashSync(password, 10);
           const resultado = await pool.query('INSERT INTO usuarios (username, password) VALUES ($1, $2) RETURNING id, username, fecha_registro', [email,
-  password]);
+  hash]);//Antes de guardar en la base de datos la contraseña la convierte en un hash irreversible.
           const nuevoUsuario = resultado.rows[0];
           const nombreUsuario = nombre || (email.includes('@') ? email.split('@')[0]
   : email);
